@@ -1,13 +1,25 @@
 import tensorflow as tf
 
+def summaries(var):
+    with tf.name_scope('summaries'):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean', mean)
+        with tf.name_scope('stddev'):
+            stddev = tf.sqrt(tf.reduce_mean(var - mean))
+        tf.summary.scalar('stddev',stddev)
+        tf.summary.scalar('max', tf.reduce_max(var))
+        tf.summary.scalar('min', tf.reduce_min(var))
+        tf.summary.histogram('histogram',var)
+
 # placeholders are inputs to the model
 # variables are things that get trained. like weights and biases
 # declare variables and linear model
-with tf.name_scope('variables'):
-    with tf.name_scope('weight'):
-        W = tf.Variable([.3],tf.float32)
-    with tf.name_scope('bias'):
-        b = tf.Variable([-.3],tf.float32)
+with tf.name_scope('weight'):
+    W = tf.Variable([.3],tf.float32)
+    summaries(W)
+with tf.name_scope('bias'):
+    b = tf.Variable([-.3],tf.float32)
+    summaries(b)
 x = tf.placeholder(tf.float32)
 linear_model = W * x + b
 
@@ -18,7 +30,10 @@ linear_model = W * x + b
 # loss
 y = tf.placeholder(tf.float32) # desired output
 squared_deltas = tf.square(linear_model - y) # square differences between output and desired
-loss = tf.reduce_sum(squared_deltas)
+
+with tf.name_scope('loss'):
+    loss = tf.reduce_sum(squared_deltas)
+    summaries(loss)
 
 # optimizer
 # gradient descent
